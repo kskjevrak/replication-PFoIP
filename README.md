@@ -75,23 +75,6 @@ replication-PFoIP/
 - **GPU**: Optional (CPU training supported)
 - **Runtime**: ~30-45 minutes for minimal test, 5-7 days for full replication
 
-## Citation
-
-If you use this code, please cite:
-
-```bibtex
-@article{yourname2025probabilistic,
-  title={Probabilistic Forecasting of Imbalance Prices: An Application to the Norwegian Electricity Market},
-  author={Your Name and Co-Author},
-  journal={International Journal of Forecasting},
-  year={2025}
-}
-```
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For questions about the replication package, please open an issue or contact [your.email@institution.edu](mailto:your.email@institution.edu).

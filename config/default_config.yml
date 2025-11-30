@@ -1,0 +1,30 @@
+data:
+  zones: ['no1', 'no2', 'no3', 'no4', 'no5']
+  start_date: '2019-08-25'
+  end_date: '2024-04-26'
+  validation_start: '2023-04-25'
+  
+model:
+  distribution: 'JSU'  # 'Normal' or 'JSU' or 'Ghyp'
+  architectures:
+    - hidden_layers: [256, 128]
+    - hidden_layers: [512, 256]
+  
+training:
+  batch_size: 16
+  max_epochs: 1500
+  patience: 50
+  learning_rate_range: [1e-5, 1e-2]
+  
+tuning:
+  n_trials: 128
+  cross_validation_folds: 6
+
+prediction:
+  # Historical window size in days
+  window_size: 730
+  # Number of hours to predict
+  hours: 24
+  # Test period (for rolling predictions)
+  test_start: "2024-04-26"
+  test_end: "2025-04-26"

@@ -1,0 +1,27 @@
+name: tio4900-model
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.16
+  - numpy>=1.20.0
+  - pandas>=1.3.0
+  - scipy>=1.7.0
+  - scikit-learn>=1.0.0
+  - pytorch>=1.9.0
+  - torchvision
+  - cudatoolkit=11.3  # Adjust based on your GPU compatibility
+  - matplotlib>=3.5.0
+  - seaborn>=0.11.0
+  - jupyter
+  - jupyterlab
+  - ipywidgets
+  - ipykernel
+  - pip>=21.0
+  - pip:
+    - optuna>=2.10.0
+    - joblib>=1.1.0
+    - black>=21.5b2
+    - flake8>=3.9.2
+    - pytest>=6.0

@@ -28,7 +28,7 @@ wheels/
 profile_default/
 ipython_config.py
 
-# Data files - exclude large data files
+# Data files - exclude large data files but keep synthetic data structure
 src/data/raw/
 src/data/preprocessing/
 !/src/data/raw/.gitkeep
@@ -36,11 +36,9 @@ src/data/preprocessing/
 *.xlsx
 *.npy
 *.npz
-#.parquet
-#*.yaml
-#*.pt
-#*.db
-#*.joblib
+# Note: .parquet files in src/data/ are excluded by default (can be large)
+# YAML config files are kept (needed for replication)
+# Model files (.pt, .db, .joblib) in results/ are excluded below
 
 # ML specific
 #models/*.h5
@@ -50,20 +48,35 @@ src/data/preprocessing/
 #*.npz
 #*.npy
 
-# Plots
+# Plots (exclude generated plots globally)
 *.png
+# Note: specific plot exclusions are handled in Results section below
 
 # Results and artifacts
-#results/forecasts/
-# Ignore all trial YAML files in models directory
-#results/models/**/trial_*.yaml
+# Keep directory structure but exclude large generated files
 results/tmp_forecasts/
 results/models_archive/
-#results/logs/
-#/results/plots/*
-#!/results/plots/.gitkeep
-#*.db
-#*.csv
+
+# Exclude large forecast and model files (users will generate their own)
+results/forecasts/**/*.parquet
+results/forecasts/**/*.csv
+results/models/**/*.pt
+results/models/**/*.pth
+results/models/**/*.joblib
+results/models/**/*.db
+
+# Keep YAML config files in results (important for replication)
+!results/models/**/*.yaml
+!results/models/**/*.yml
+
+# Logs - exclude but keep directory structure
+results/logs/*.log
+!results/logs/.gitkeep
+
+# Plots - exclude generated plots
+results/plots/*.png
+results/plots/*.pdf
+!results/plots/.gitkeep
 
 # tex files
 *.tex
@@ -99,8 +112,8 @@ slurm-*.out
 venv/
 .venv
 
-#Requirements
-requirements.txt
+# Requirements - keep requirements.txt for pip users
+# requirements.txt
 
 # noteboks 
 notebooks/

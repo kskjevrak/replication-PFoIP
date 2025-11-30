@@ -555,18 +555,26 @@ class DailyMarketPredictor:
         try:
             self.logger.info("Training forecast model...")
             
-            # 🔧 ADD THIS - Different model initialization per run_id
+            # Different model initialization per run_id
             base_seed = 42
             date_seed = int(self.prediction_date.strftime('%Y%m%d'))
-            run_seed = base_seed + int(self.run_id) * 1000 + date_seed
-            
+
+            # Handle both numeric and string run_ids
+            try:
+                run_id_numeric = int(self.run_id)
+            except (ValueError, TypeError):
+                # Hash the run_id string to get a consistent numeric value
+                run_id_numeric = abs(hash(str(self.run_id))) % 10000
+
+            run_seed = base_seed + run_id_numeric * 1000 + date_seed
+
             # Set PyTorch seeds BEFORE model creation
             torch.manual_seed(run_seed)
             if torch.cuda.is_available():
                 torch.cuda.manual_seed(run_seed)
-            
+
             # Also update train/val split seed
-            split_seed = date_seed + int(self.run_id) * 10
+            split_seed = date_seed + run_id_numeric * 10
             np.random.seed(split_seed)  # Different split per run_id
 
             # Prepare training and validation datasets
@@ -810,7 +818,7 @@ class DailyMarketPredictor:
             forecast_df = pd.DataFrame(index=pd.date_range(
                 start=self.prediction_date,
                 periods=24,
-                freq='H'
+                freq='h'
             ))
 
             # Extract state information from premium forecasts

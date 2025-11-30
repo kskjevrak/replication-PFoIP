@@ -58,23 +58,77 @@ def process_day(prediction_date, zone, distribution, run_id, logger):
 def main():
     """Main function to run mFRR price predictions for a date range"""
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description="mFRR price prediction script for date range")
-    parser.add_argument("zone", nargs="?", default="no1", 
-                        help="Market zone (e.g., no1, no2)")
-    parser.add_argument("distribution", nargs="?", default="JSU", choices=["JSU", "Normal", "skewt"], 
-                        help="Probability distribution")
-    parser.add_argument("run_id", nargs="?", default="1", 
-                        help="Specific run ID (uses latest if not specified)")
+    parser = argparse.ArgumentParser(
+        description="mFRR price prediction script for date range",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Using positional arguments
+  python run_pred.py no1 jsu test --start-date 2024-04-26 --end-date 2024-04-26
+
+  # Using named arguments
+  python run_pred.py --zone no1 --distribution jsu --run-id test --start-date 2024-04-26 --end-date 2024-04-26
+
+  # Multiple workers for faster processing
+  python run_pred.py no1 jsu test --start-date 2024-04-26 --end-date 2024-05-01 --workers 4
+        """
+    )
+
+    parser.add_argument("zone", nargs="?",
+                        help="Market zone (e.g., no1, no2, no3, no4, no5)")
+    parser.add_argument("distribution", nargs="?",
+                        help="Probability distribution (jsu, normal, skewt)")
+    parser.add_argument("run_id", nargs="?",
+                        help="Run identifier matching the trained model")
+
+    parser.add_argument("--zone", "-z", dest="zone_named", type=str,
+                        help="Market zone (named argument)")
+    parser.add_argument("--distribution", "-d", dest="distribution_named", type=str,
+                        help="Probability distribution (named argument)")
+    parser.add_argument("--run-id", "-r", dest="run_id_named", type=str,
+                        help="Run identifier (named argument)")
+
+    parser.add_argument("--start-date", type=str, required=True,
+                        help="Start date for predictions (YYYY-MM-DD)")
+    parser.add_argument("--end-date", type=str, required=True,
+                        help="End date for predictions (YYYY-MM-DD)")
     parser.add_argument("--workers", type=int, default=1,
-                    help="Number of worker processes (default: 8)")
-    
+                        help="Number of worker processes (default: 1)")
+
     args = parser.parse_args()
+
+    # Handle positional vs named arguments
+    zone = args.zone_named or args.zone
+    distribution = args.distribution_named or args.distribution
+    run_id = args.run_id_named or args.run_id
+
+    # Validate required arguments
+    if not zone:
+        parser.error("zone is required")
+    if not distribution:
+        parser.error("distribution is required")
+    if not run_id:
+        parser.error("run_id is required")
+
+    # Normalize distribution name
+    distribution_map = {
+        'normal': 'Normal',
+        'jsu': 'JSU',
+        'skewt': 'skewt',
+        'studentt': 'skewt',
+        't': 'skewt'
+    }
+    distribution_lower = distribution.lower()
+    if distribution_lower not in distribution_map:
+        parser.error(f"distribution must be one of {list(distribution_map.keys())}, got: {distribution}")
+
+    distribution = distribution_map[distribution_lower]
 
     # Set up logging
     log_dir = os.path.join("results", "logs")
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"prediction_{args.zone}_{args.distribution.lower()}_{args.run_id}.log")
-    
+    log_file = os.path.join(log_dir, f"prediction_{zone}_{distribution.lower()}_{run_id}.log")
+
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -83,15 +137,17 @@ def main():
             logging.StreamHandler()
         ]
     )
-    
+
     logger = logging.getLogger("prediction")
-    logger.info(f"Starting predictions for zone: {args.zone}, distribution: {args.distribution}, run_id: {args.run_id}")
-    
+    logger.info(f"Starting predictions for zone: {zone}, distribution: {distribution}, run_id: {run_id}")
+
     # Parse date range
-    start_date = pd.Timestamp("2024-04-26", tz="Europe/Oslo")
-    end_date = pd.Timestamp("2025-04-25", tz="Europe/Oslo")  # Full circle days later
-    #end_date = pd.Timestamp("2024-05-10", tz="Europe/Oslo")  # Full circle days later
-    
+    try:
+        start_date = pd.Timestamp(args.start_date, tz="Europe/Oslo")
+        end_date = pd.Timestamp(args.end_date, tz="Europe/Oslo")
+    except Exception as e:
+        parser.error(f"Invalid date format. Use YYYY-MM-DD. Error: {e}")
+
     logger.info(f"Prediction date range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
     
     # Import prediction module
@@ -111,9 +167,9 @@ def main():
         # Track results
         successful_days = []
         failed_days = []
-        
+
         # Create a partial function with fixed arguments
-        worker_func = partial(process_day, zone=args.zone, distribution=args.distribution, run_id=args.run_id, logger=logger)
+        worker_func = partial(process_day, zone=zone, distribution=distribution, run_id=run_id, logger=logger)
 
         # Determine number of processes to use
         num_workers = min(args.workers, len(date_list))
@@ -142,9 +198,9 @@ def main():
             'successful_days': successful_days,
             'failed_days': failed_days,
             'parameters': {
-                'zone': args.zone,
-                'distribution': args.distribution,
-                'run_id': args.run_id
+                'zone': zone,
+                'distribution': distribution,
+                'run_id': run_id
             }
         }
         

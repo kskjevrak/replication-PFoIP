@@ -321,10 +321,14 @@ class OptunaHPTuner:
             with open(f'{self.results_dir}/best_params.yaml', 'w') as f:
                 yaml.dump(best_params, f)
             
-            # Rename the best model
+            # Rename the best model (remove existing file first on Windows)
             best_model_temp = f"{self.results_dir}/best_model_temp.pt"
             best_model_final = f"{self.results_dir}/best_model.pt"
-            
+
+            # Remove existing final model if it exists (required on Windows)
+            if os.path.exists(best_model_final):
+                os.remove(best_model_final)
+
             os.rename(best_model_temp, best_model_final)
                 
             return best_params

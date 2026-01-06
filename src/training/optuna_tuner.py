@@ -12,10 +12,82 @@ from ..models.neural_nets import create_probabilistic_model
 from ..data.loader import DataProcessor
 
 class OptunaHPTuner:
-    """Hyperparameter tuner using Optuna for direct premium prediction"""
-    
+    """
+    Hyperparameter tuner using Optuna for Deep Distributional Neural Networks (DDNN).
+
+    This class implements automated hyperparameter optimization for probabilistic
+    forecasting models using the Optuna framework with time-series cross-validation.
+
+    The optimization searches over:
+    - Network architecture (number of layers, units per layer)
+    - Activation functions (ReLU, Tanh, Softplus)
+    - Regularization (dropout rates, L2 penalty, batch normalization)
+    - Training parameters (learning rate, batch size)
+
+    Key Features:
+    - Time-series aware cross-validation (no data leakage)
+    - Early stopping to prevent overfitting
+    - Automatic model checkpointing and parameter saving
+    - Scalers saved for reproducible inference
+
+    Attributes
+    ----------
+    config_path : str
+        Path to YAML configuration file
+    zone : str
+        Bidding zone identifier (no1-no5)
+    distribution : str
+        Probability distribution (JSU, Normal, skewt)
+    run_id : str
+        Unique identifier for this optimization run
+    device : torch.device
+        Computation device (cuda or cpu)
+    results_dir : str
+        Directory where results are saved
+
+    Example
+    -------
+    >>> tuner = OptunaHPTuner(
+    ...     config_path='config/default_config.yml',
+    ...     zone='no1',
+    ...     distribution='jsu',
+    ...     run_id='replication_001'
+    ... )
+    >>> best_params = tuner.run_optimization(n_trials=128)
+    >>> print(f"Best NLL: {best_params['best_value']}")
+
+    Notes
+    -----
+    - Optimization typically takes 6-12 hours for 128 trials (CPU)
+    - Results are saved to results/models/{zone}_{distribution}_{run_id}/
+    - Optuna study database allows resuming interrupted optimizations
+    - See config/default_config.yml for available configuration options
+
+    References
+    ----------
+    Optuna: A hyperparameter optimization framework. https://optuna.org/
+    """
+
     def __init__(self, config_path, zone, distribution, run_id):
-        """Initialize tuner with configuration"""
+        """
+        Initialize the hyperparameter tuner.
+
+        Parameters
+        ----------
+        config_path : str
+            Path to YAML configuration file containing data ranges,
+            model architectures, and training parameters
+        zone : str
+            Bidding zone identifier (no1, no2, no3, no4, no5)
+        distribution : str
+            Probability distribution for DDNN output layer:
+            - 'JSU': Johnson's SU (4 parameters: location, scale, skewness, tailweight)
+            - 'Normal': Gaussian (2 parameters: location, scale)
+            - 'skewt': Skewed Student's t (4 parameters)
+        run_id : str
+            Unique identifier for this optimization run. Used in output paths
+            and allows running multiple experiments with same zone/distribution.
+        """
         self.config_path = config_path
         self.zone = zone
         self.distribution = distribution

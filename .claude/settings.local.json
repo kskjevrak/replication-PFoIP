@@ -4,7 +4,10 @@
       "Bash(python:*)",
       "Bash(python3:*)",
       "Bash(conda run:*)",
-      "Bash(.venv/Scripts/python:*)"
+      "Bash(.venv/Scripts/python:*)",
+      "Bash(dir /b /s \"c:\\\\Users\\\\kskje\\\\Jottacloud\\\\Paper\\\\replication-PFoIP\\\\src\\\\*.py\")",
+      "Bash(findstr:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

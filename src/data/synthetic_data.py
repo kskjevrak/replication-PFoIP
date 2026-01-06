@@ -2,13 +2,22 @@
 """
 synthetic_data.py - Generate synthetic electricity imbalance price data
 
-This script generates synthetic data that mimics the structure of the real
-Norwegian electricity market data for testing and demonstration purposes.
+This script generates synthetic data that approximates the statistical properties
+of the real Norwegian electricity market data for testing and demonstration purposes.
+
+IMPORTANT: This is synthetic data for code testing only. Results will differ from
+the paper as this does not capture the true market dynamics. See DATA_AVAILABILITY.md.
 
 The generated data includes:
 - Hourly time series with proper timezone handling (Europe/Oslo)
 - Target variable: premium (imbalance price)
-- Features: mFRR prices and volumes
+- Features: mFRR up/down prices and volumes
+
+Statistical properties attempt to match thesis Appendix B (Tables B1-B5):
+- Mean premium: ~85-90 EUR/MWh (zone-dependent)
+- Std premium: ~90-100 EUR/MWh (heavy-tailed)
+- Maximum spikes: >1200 EUR/MWh
+- Temporal autocorrelation and regime-switching behavior
 
 Usage:
     python src/data/synthetic_data.py --zone no1 --start-date 2019-08-25 --end-date 2024-04-26
@@ -31,6 +40,18 @@ def generate_synthetic_electricity_data(
     """
     Generate synthetic electricity imbalance price data.
 
+    This function creates time series data with statistical properties approximating
+    those described in the thesis (Appendix B). The data exhibits:
+    - Heavy-tailed price distributions
+    - Temporal autocorrelation
+    - Daily, weekly, and seasonal patterns
+    - Regime-switching behavior (calm periods + extreme spikes)
+
+    LIMITATIONS:
+    - Simplified market dynamics (no strategic bidding, supply shocks, etc.)
+    - Approximate correlations between variables
+    - Does not capture non-stationarity and structural breaks in real data
+
     Parameters
     ----------
     start_date : str
@@ -39,13 +60,19 @@ def generate_synthetic_electricity_data(
         End date in format 'YYYY-MM-DD'
     zone : str
         Bidding zone identifier (no1, no2, no3, no4, no5)
+        Different zones have slightly different statistical properties
     seed : int
         Random seed for reproducibility
 
     Returns
     -------
     pd.DataFrame
-        Synthetic data with hourly frequency and required columns
+        Synthetic data with hourly frequency and required columns:
+        - premium: Price premium (target variable)
+        - mFRR_price_up: Upward regulation price
+        - mFRR_price_down: Downward regulation price
+        - mFRR_vol_up: Upward activation volume
+        - mFRR_vol_down: Downward activation volume
     """
     np.random.seed(seed + hash(zone) % 1000)  # Zone-specific seed
 

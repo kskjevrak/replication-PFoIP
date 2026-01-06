@@ -4,9 +4,86 @@ from .layers import LSJSULayer, LSNormalLayer, LSJFSkewTLayer
 
 def create_probabilistic_model(distribution, input_size, hidden_layers_config, output_size=24, ls_decay_rate=5.0, ls_reduction_factor=0.5):
     """
-    Factory function that creates a DDNN with separate layers for each distribution parameter.
-    This follows the architecture described in the DDNN paper where each distribution parameter
-    has its own final layer that can be regularized separately.
+    Create a Deep Distributional Neural Network (DDNN) for probabilistic forecasting.
+
+    This factory function builds a neural network that outputs parameters of a
+    probability distribution rather than point forecasts. The architecture follows
+    the DDNN framework with:
+    - Shared hidden layers for feature extraction
+    - Separate output heads for each distribution parameter
+    - Distribution-specific transformation layers (non-learnable)
+
+    The model is trained to minimize negative log-likelihood, learning to predict
+    the full conditional distribution of the target variable given input features.
+
+    Parameters
+    ----------
+    distribution : str
+        Probability distribution family. Supported options:
+        - 'normal' or 'Normal': Gaussian distribution (2 parameters: μ, σ)
+        - 'jsu' or 'JSU': Johnson's SU (4 parameters: μ, σ, γ, δ)
+        - 'skewt' or 'skewt': Skewed Student's t (4 parameters: μ, σ, a, b)
+    input_size : int
+        Number of input features. Must match preprocessed data dimensions.
+    hidden_layers_config : list of dict
+        Configuration for hidden layers. Each dict specifies:
+        - 'units' (int): Number of neurons
+        - 'activation' (str): Activation function ('relu', 'tanh', 'softplus')
+        - 'dropout_rate' (float, optional): Dropout probability
+        - 'batch_norm' (bool, optional): Whether to use batch normalization
+    output_size : int, default=24
+        Number of forecast time steps (hours). Default 24 for daily forecasts.
+    ls_decay_rate : float, default=5.0
+        Decay rate for layer normalization in distribution transformation.
+    ls_reduction_factor : float, default=0.5
+        Reduction factor for layer normalization.
+
+    Returns
+    -------
+    torch.nn.Module
+        DDNN model ready for training or inference
+
+    Raises
+    ------
+    ValueError
+        If distribution is not supported or input_size is invalid
+
+    Example
+    -------
+    >>> hidden_config = [
+    ...     {'units': 256, 'activation': 'relu', 'dropout_rate': 0.1, 'batch_norm': True},
+    ...     {'units': 128, 'activation': 'tanh', 'dropout_rate': 0.05, 'batch_norm': False}
+    ... ]
+    >>> model = create_probabilistic_model(
+    ...     distribution='jsu',
+    ...     input_size=192,
+    ...     hidden_layers_config=hidden_config,
+    ...     output_size=24
+    ... )
+    >>> print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
+
+    Notes
+    -----
+    Architecture Details:
+    - Shared hidden network: Processes all input features identically
+    - Parameter-specific heads: Each distribution parameter gets its own linear layer
+    - Transformation layer: Ensures parameters satisfy constraints (e.g., σ > 0)
+
+    Distribution Parameters:
+    - Normal: μ (location), σ (scale)
+    - JSU: μ (location), σ (scale), γ (skewness), δ (tailweight)
+    - Skewed-t: μ (location), σ (scale), a (skewness), b (degrees of freedom)
+
+    The model is trained end-to-end with negative log-likelihood loss.
+
+    See Also
+    --------
+    OptunaHPTuner : For optimizing hidden_layers_config
+    LSJSULayer, LSNormalLayer, LSJFSkewTLayer : Distribution transformation layers
+
+    References
+    ----------
+    Deep Distributional Neural Networks framework for probabilistic forecasting.
     """
     if not isinstance(input_size, int):
         raise ValueError(f"input_size must be an integer, got {type(input_size)}")

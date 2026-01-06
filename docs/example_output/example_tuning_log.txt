@@ -1,0 +1,31 @@
+Example Hyperparameter Tuning Log (Excerpt)
+=============================================
+
+This is an abbreviated example showing typical log output during Optuna optimization.
+Actual logs will be more verbose and contain full training details.
+
+2024-11-30 10:15:23,145 - no1_jsu_replication_001 - INFO - Loading and preparing data...
+2024-11-30 10:15:45,892 - no1_jsu_replication_001 - INFO - Data loaded: Training samples=35040, Validation samples=8760
+2024-11-30 10:15:45,901 - no1_jsu_replication_001 - INFO - Feature groups: 8 groups, 192 total features
+2024-11-30 10:15:46,012 - no1_jsu_replication_001 - INFO - Starting Optuna optimization with 128 trials
+
+[I 2024-11-30 10:15:46,234] A new study created in RDB with name: no1_jsu_replication_001
+[I 2024-11-30 10:20:15,891] Trial 0 finished with value: -52.34 and parameters: {'n_layers': 2, 'layer_0_units': 128, 'layer_0_activation': 'relu', 'layer_0_dropout': 0.15, 'layer_0_batch_norm': True, 'layer_1_units': 64, 'layer_1_activation': 'tanh', 'layer_1_dropout': 0.08, 'layer_1_batch_norm': False, 'learning_rate': 0.0045, 'batch_size': 16, 'l2_reg': 0.0001}. Best is trial 0 with value: -52.34.
+
+[I 2024-11-30 10:25:42,567] Trial 1 finished with value: -48.91 and parameters: {'n_layers': 2, 'layer_0_units': 256, 'layer_0_activation': 'relu', 'layer_0_dropout': 0.12, 'layer_0_batch_norm': True, 'layer_1_units': 128, 'layer_1_activation': 'tanh', 'layer_1_dropout': 0.05, 'layer_1_batch_norm': False, 'learning_rate': 0.0023, 'batch_size': 16, 'l2_reg': 0.00015}. Best is trial 1 with value: -48.91.
+
+[I 2024-11-30 10:31:18,234] Trial 2 finished with value: -50.76 and parameters: {'n_layers': 2, 'layer_0_units': 192, 'layer_0_activation': 'softplus', 'layer_0_dropout': 0.10, 'layer_0_batch_norm': True, 'layer_1_units': 96, 'layer_1_activation': 'relu', 'layer_1_dropout': 0.12, 'layer_1_batch_norm': True, 'learning_rate': 0.0031, 'batch_size': 32, 'l2_reg': 0.0002}. Best is trial 1 with value: -48.91.
+
+[... 124 more trials ...]
+
+[I 2024-11-30 16:42:31,567] Trial 127 finished with value: -39.12 and parameters: {'n_layers': 2, 'layer_0_units': 256, 'layer_0_activation': 'relu', 'layer_0_dropout': 0.11, 'layer_0_batch_norm': True, 'layer_1_units': 128, 'layer_1_activation': 'tanh', 'layer_1_dropout': 0.07, 'layer_1_batch_norm': False, 'learning_rate': 0.0021, 'batch_size': 16, 'l2_reg': 0.0001}. Best is trial 87 with value: -38.92.
+
+2024-11-30 16:42:31,789 - no1_jsu_replication_001 - INFO - Optimization complete! Best value: -38.92
+2024-11-30 16:42:31,801 - no1_jsu_replication_001 - INFO - Best trial: 87
+2024-11-30 16:42:31,812 - no1_jsu_replication_001 - INFO - Best hyperparameters:
+2024-11-30 16:42:31,823 - no1_jsu_replication_001 - INFO -   hidden_layers: [{'units': 256, 'activation': 'relu', 'dropout_rate': 0.12, 'batch_norm': True}, {'units': 128, 'activation': 'tanh', 'dropout_rate': 0.08, 'batch_norm': False}]
+2024-11-30 16:42:31,834 - no1_jsu_replication_001 - INFO -   learning_rate: 0.00234
+2024-11-30 16:42:31,845 - no1_jsu_replication_001 - INFO -   batch_size: 16
+2024-11-30 16:42:31,856 - no1_jsu_replication_001 - INFO -   l2_regularization: 0.0001
+2024-11-30 16:42:32,012 - no1_jsu_replication_001 - INFO - Best parameters saved to results/models/no1_jsu_replication_001/best_params.yaml
+2024-11-30 16:42:32,123 - no1_jsu_replication_001 - INFO - Optuna study saved to results/models/no1_jsu_replication_001/optuna_study.db

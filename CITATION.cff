@@ -1,0 +1,67 @@
+# Citation metadata for the replication package
+# This file can be used by tools like Zotero, Mendeley, and GitHub to automatically generate citations
+# Format specification: https://citation-file-format.github.io/
+
+cff-version: 1.2.0
+message: "If you use this software or methodology, please cite both the software and the paper."
+type: software
+
+title: "Probabilistic Forecasting of Imbalance Prices: Replication Package"
+version: 1.0.0
+date-released: 2025-01-05
+
+authors:
+  - family-names: Skjevrak
+    given-names: Knut
+    email: knut.skjevrak@ntnu.no
+    affiliation: Norwegian University of Science and Technology
+    orcid: "https://orcid.org/0009-0000-4645-6693"
+
+  - family-names: Holmen
+    given-names: Emil Duedahl
+    affiliation: Norwegian University of Science and Technology
+
+  - family-names: Westgaard
+    given-names: Sjur
+    affiliation: Norwegian University of Science and Technology
+    orcid: "https://orcid.org/0000-0003-4891-2730"
+
+repository-code: "https://github.com/kskjevrak/replication-PFoIP"
+url: "https://github.com/kskjevrak/replication-PFoIP" 
+
+keywords:
+  - probabilistic forecasting
+  - electricity markets
+  - imbalance pricing
+  - deep learning
+  - distributional neural networks
+  - energy economics
+  - time series
+  - quantile regression
+
+license: MIT
+
+preferred-citation:
+  type: article
+  title: "Probabilistic Forecasting of Imbalance Prices: An Application to the Norwegian Electricity Market"
+  authors:
+    - family-names: Skjevrak
+      given-names: Knut
+    - family-names: Holmen
+      given-names: Emil Duedahl
+    - family-names: Westgaard
+      given-names: Sjur
+  journal: "International Journal of Forecasting"
+  year: 2025
+  status: "Manuscript in preparation"
+  abstract: "This paper develops and evaluates probabilistic forecasting methods for electricity imbalance prices in the Norwegian mFRR market. Using Deep Distributional Neural Networks with flexible parametric distributions, we model the heavy-tailed and highly volatile nature of imbalance price premiums across five Norwegian bidding zones."
+
+references:
+  - type: article
+    title: "Deep Distributional Neural Networks"
+    authors:
+      - family-names: Author
+        given-names: Name
+    journal: "Journal Name"
+    year: 20XX
+    scope: "The DDNN architecture implemented in this package is based on this methodology."

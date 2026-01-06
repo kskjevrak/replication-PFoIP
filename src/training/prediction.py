@@ -29,23 +29,83 @@ from ..data.loader import DataProcessor
 
 class DailyMarketPredictor:
     """
-    Class for making daily mFRR price predictions to support market bidding
+    Daily probabilistic predictor for electricity imbalance prices.
+
+    This class loads a trained DDNN model and generates probabilistic forecasts
+    for the next 24 hours based on historical market data. It's designed for
+    operational use in electricity markets to support bidding decisions.
+
+    The prediction pipeline:
+    1. Loads best hyperparameters from tuning
+    2. Loads and preprocesses recent historical data (window_size days)
+    3. Applies saved scalers for feature normalization
+    4. Generates distributional forecasts (mean, quantiles, full distribution)
+    5. Saves forecasts and distribution parameters
+
+    Attributes
+    ----------
+    zone : str
+        Bidding zone identifier
+    distribution : str
+        Probability distribution type (JSU, Normal, skewt)
+    run_id : str
+        Model run identifier
+    model_dir : Path
+        Directory containing trained model parameters
+    device : torch.device
+        Computation device (cuda or cpu)
+    window_size : int
+        Days of historical data used for prediction (default: 730 days / 2 years)
+
+    Example
+    -------
+    >>> predictor = DailyMarketPredictor(
+    ...     zone='no1',
+    ...     distribution='jsu',
+    ...     run_id='replication_001'
+    ... )
+    >>> predictor.prediction_date = pd.Timestamp('2024-04-26', tz='Europe/Oslo')
+    >>> forecast = predictor.run()
+    >>> print(forecast[['mean', 'median', 'q05', 'q95']].head())
+
+    Notes
+    -----
+    - Requires completed hyperparameter tuning (best_params.yaml must exist)
+    - Prediction typically takes 2-5 minutes per day (CPU)
+    - Forecasts saved to results/forecasts/df_forecasts_{zone}_{distribution}_{run_id}/
+    - Distribution parameters saved to results/forecasts/distparams_{zone}_{distribution}_{run_id}/
+
+    See Also
+    --------
+    OptunaHPTuner : For hyperparameter optimization
+    create_probabilistic_model : For DDNN architecture details
     """
-    
+
     def __init__(self, zone='no1', distribution='JSU', run_id=None, config_path=None):
         """
-        Initialize the predictor with market zone and model configuration
-        
-        Parameters:
-        -----------
-        zone : str
-            Market zone identifier (e.g., 'no1', 'no2', etc.)
-        distribution : str 
-            Probability distribution type ('JSU', 'Normal', 'StudentT', 'st')
-        run_id : str
-            Identifier for model run (if None, use the latest)
-        config_path : str
-            Path to configuration file
+        Initialize the daily predictor.
+
+        Parameters
+        ----------
+        zone : str, default='no1'
+            Market zone identifier (no1, no2, no3, no4, no5)
+        distribution : str, default='JSU'
+            Probability distribution type:
+            - 'JSU': Johnson's SU (recommended for heavy-tailed prices)
+            - 'Normal': Gaussian distribution
+            - 'skewt': Skewed Student's t distribution
+        run_id : str, optional
+            Identifier for the model run. If None, attempts to use most recent.
+            Must match the run_id from hyperparameter tuning.
+        config_path : str, optional
+            Path to configuration file. If None, uses config/default_config.yml
+
+        Raises
+        ------
+        FileNotFoundError
+            If model directory or best_params.yaml not found
+        ValueError
+            If distribution type is not supported
         """
         self.zone = zone.lower()
         self.distribution = distribution

@@ -1,11 +1,16 @@
+# .gitignore for Probabilistic Forecasting of Imbalance Prices Replication Package
+#
+# This file specifies which files should be excluded from version control.
+# Key principle: Include code, configs, and documentation; exclude data and generated artifacts.
+
+# ==============================================================================
 # Python
+# ==============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-.env
 build/
 develop-eggs/
 dist/
@@ -22,70 +27,106 @@ wheels/
 .installed.cfg
 *.egg
 
-# Jupyter
+# ==============================================================================
+# Jupyter Notebooks
+# ==============================================================================
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 profile_default/
 ipython_config.py
 
-# Data files - exclude large data files but keep synthetic data structure
+# NOTE: We exclude notebooks/ directory entirely as these are exploratory only
+notebooks/
+
+# ==============================================================================
+# Data Files
+# ==============================================================================
+# Exclude all data files - users must generate synthetic or obtain real data
 src/data/raw/
 src/data/preprocessing/
-!/src/data/raw/.gitkeep
-!/src/data/processed/.gitkeep
+src/data/no1/
+src/data/no2/
+src/data/no3/
+src/data/no4/
+src/data/no5/
+
+# Keep directory structure markers
+!src/data/raw/.gitkeep
+!src/data/processed/.gitkeep
+!src/data/*/.gitkeep
+
+# Exclude large data formats
 *.xlsx
 *.npy
 *.npz
-# Note: .parquet files in src/data/ are excluded by default (can be large)
-# YAML config files are kept (needed for replication)
-# Model files (.pt, .db, .joblib) in results/ are excluded below
+*.parquet
 
-# ML specific
-#models/*.h5
-#models/*.pt
-#models/*.pth
-#models/*.onnx
-#*.npz
-#*.npy
+# NOTE: Parquet files contain actual market data (confidential or synthetic)
+# Users generate these via src/data/synthetic_data.py
 
-# Plots (exclude generated plots globally)
-*.png
-# Note: specific plot exclusions are handled in Results section below
+# ==============================================================================
+# Model Artifacts and Results
+# ==============================================================================
+# Exclude large generated files - users will generate their own during replication
 
-# Results and artifacts
-# Keep directory structure but exclude large generated files
+# Temporary forecasts
 results/tmp_forecasts/
 results/models_archive/
 
-# Exclude large forecast and model files (users will generate their own)
+# Generated forecasts (can be large)
 results/forecasts/**/*.parquet
 results/forecasts/**/*.csv
+
+# Trained model files
 results/models/**/*.pt
 results/models/**/*.pth
 results/models/**/*.joblib
 results/models/**/*.db
 
-# Keep YAML config files in results (important for replication)
+# IMPORTANT: Keep YAML config files - these are essential for replication
 !results/models/**/*.yaml
 !results/models/**/*.yml
 
-# Logs - exclude but keep directory structure
+# Training logs
 results/logs/*.log
 !results/logs/.gitkeep
 
-# Plots - exclude generated plots
+# Generated plots
 results/plots/*.png
 results/plots/*.pdf
 !results/plots/.gitkeep
 
-# tex files
+# ==============================================================================
+# Example Outputs (INCLUDED for documentation)
+# ==============================================================================
+# We keep small example output files to show users what to expect
+!docs/example_output/**/*.csv
+!docs/example_output/**/*.yaml
+!docs/example_output/**/*.txt
+!docs/example_output/**/*.log
+
+# ==============================================================================
+# Configuration Files (INCLUDED)
+# ==============================================================================
+# These are critical for replication and should be versioned
+# requirements.txt - pip dependencies (INCLUDED)
+# environment.yml - conda environment (INCLUDED)
+# config/*.yml - model configurations (INCLUDED)
+# *.cff - citation metadata (INCLUDED)
+
+# ==============================================================================
+# Documentation (INCLUDED)
+# ==============================================================================
+# All markdown documentation files are included
+# *.md files (INCLUDED)
+
+# Exclude generated LaTeX files from evaluation
 *.tex
+forecast_tables.tex
 
-# Logs
-#logs/
-#*.log
-
-# IDE specific files
+# ==============================================================================
+# IDE and Editor Files
+# ==============================================================================
 .idea/
 .vscode/
 *.swp
@@ -94,7 +135,9 @@ results/plots/*.pdf
 .spyproject
 .ropeproject
 
-# OS specific
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
 .DS_Store
 .DS_Store?
 ._*
@@ -103,18 +146,64 @@ results/plots/*.pdf
 ehthumbs.db
 Thumbs.db
 
-# Cluster specific
+# ==============================================================================
+# HPC and Cluster
+# ==============================================================================
 slurm-*.out
 *-checkpoint
 *.out
 
-# Virtual environment
+# ==============================================================================
+# Virtual Environments
+# ==============================================================================
+# Exclude virtual environment directories
 venv/
-.venv
+.venv/
+env/
+.env/
 
-# Requirements - keep requirements.txt for pip users
-# requirements.txt
+# NOTE: Users create these via conda or pip during installation
 
-# noteboks 
-notebooks/
-forecast_tables.tex
+# ==============================================================================
+# Temporary and Cache Files
+# ==============================================================================
+*.log
+.cache/
+.pytest_cache/
+
+# ==============================================================================
+# Images and Plots
+# ==============================================================================
+# Exclude all generated plots globally (except in docs/example_output)
+*.png
+*.pdf
+*.jpg
+*.jpeg
+
+# Keep any documentation images if needed
+!docs/**/*.png
+!docs/**/*.pdf
+
+# ==============================================================================
+# Notes for Replication Package Users
+# ==============================================================================
+#
+# INCLUDED in repository (versioned):
+#   - All Python source code (src/, scripts/)
+#   - Configuration files (config/*.yml, requirements.txt, environment.yml)
+#   - Documentation (*.md files, CITATION.cff, LICENSE)
+#   - Example outputs (docs/example_output/)
+#   - Directory structure markers (.gitkeep files)
+#
+# EXCLUDED from repository (generated by users):
+#   - Data files (*.parquet, *.csv in data directories)
+#   - Model checkpoints (*.pt, *.pth, *.db)
+#   - Training logs (*.log)
+#   - Generated forecasts and plots
+#   - Virtual environments
+#   - IDE-specific files
+#
+# To generate excluded files:
+#   1. Data: python src/data/synthetic_data.py --all-zones
+#   2. Models: python run_tuning.py --zone no1 --distribution jsu --run-id test
+#   3. Forecasts: python run_pred.py --zone no1 --distribution jsu --run-id test --start-date 2024-04-26 --end-date 2024-04-26

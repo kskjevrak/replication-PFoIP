@@ -172,12 +172,15 @@ Run hyperparameter optimization for each model type:
 #### Deep Distributional Neural Network (DDNN)
 
 ```bash
-# Tune for zone NO1 with JSU distribution
-python run_tuning.py no1 jsu replication_run_001
+# Tune for zone NO1 with JSU distribution (interactive mode)
+python run_tuning.py --zone no1 --distribution jsu --run-id replication_run_001
+
+# Or non-interactive mode (recommended for cluster/automated execution)
+python run_tuning.py --zone no1 --distribution jsu --run-id replication_run_001 --no-confirm
 
 # The script will:
-# 1. Ask for confirmation (press Enter to continue)
-# 2. Run 128 Optuna trials with 6-fold cross-validation
+# 1. Load and preprocess data
+# 2. Run 128 Optuna trials with 6-fold time-series cross-validation
 # 3. Save best hyperparameters to results/models/no1_jsu_replication_run_001/
 ```
 
@@ -510,4 +513,4 @@ Expected total time: 5-7 days on recommended hardware
 
 **Questions?** See the main [README.md](README.md) or open an issue on GitHub.
 
-*Last updated: November 2024*
+*Last updated: January 2025*

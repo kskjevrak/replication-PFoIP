@@ -184,7 +184,7 @@ Synthetic data saved to: src/data/no1/merged_dataset_no1.parquet
   Shape: (41040, 5)
   Date range: 2019-08-25 00:00:00+02:00 to 2024-04-26 23:00:00+02:00
   Columns: ['premium', 'mFRR_price_up', 'mFRR_price_down', 'mFRR_vol_up', 'mFRR_vol_down']
-  
+
 ---
 
 ## Manual Step-by-Step Replication
@@ -717,4 +717,4 @@ Expected total time: 5-7 days on recommended hardware
 
 **Questions?** See the main [README.md](README.md) or open an issue on GitHub.
 
-*Last updated: January 2025*
+*Last updated: February 2026*

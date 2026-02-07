@@ -1,8 +1,10 @@
-# Probabilistic Forecasting of Imbalance Prices: An Application to the Norwegian Electricity Market
+# Probabilistic Forecasting of Imbalance Prices
+
+**Replication package for:** "Probabilistic Forecasting of Imbalance Prices: A Distributional Deep Learning Approach to the Norwegian Balancing Market"
 
 **Authors:** Knut Skjevrak, Emil Duedahl Holmen, Sjur Westgaard
 **Affiliation:** Norwegian University of Science and Technology (NTNU)
-**Status:** Manuscript in preparation for submission to the International Journal of Forecasting
+**Journal:** Submitted to Energy Economics
 
 This repository contains the complete replication package for reproducing the results presented in the paper.
 
@@ -11,16 +13,19 @@ This repository contains the complete replication package for reproducing the re
 ## Table of Contents
 
 - [Overview](#overview)
-- [Installation](#installation)
-- [Data Availability](#data-availability)
+- [Software Requirements](#software-requirements)
+- [Quick Start: One-Command Replication](#quick-start-one-command-replication)
+- [File-to-Output Mapping](#file-to-output-mapping)
+- [Synthetic Data Deviations](#synthetic-data-deviations)
 - [Repository Structure](#repository-structure)
-- [Quick Start](#quick-start)
-- [Configuration](#configuration)
-- [Usage](#usage)
+- [Data Availability](#data-availability)
+- [Detailed Usage](#detailed-usage)
+  - [Installation](#installation)
   - [Synthetic Data Generation](#synthetic-data-generation)
   - [Hyperparameter Tuning](#hyperparameter-tuning)
   - [Generating Predictions](#generating-predictions)
 - [Models](#models)
+- [Configuration](#configuration)
 - [Expected Outputs](#expected-outputs)
 - [System Requirements](#system-requirements)
 - [Replication Guide](#replication-guide)
@@ -50,16 +55,244 @@ The primary focus is on the DDNN approach, which provides full probabilistic for
 
 ---
 
-## Installation
+## Software Requirements
 
-### Prerequisites
-
-- **Python:** 3.10 or higher
+### Required Software
+- **Python:** 3.10.12 or higher
+- **Git:** For cloning the repository
 - **Operating System:** Windows, Linux, or macOS
-- **Memory:** Minimum 8GB RAM (16GB+ recommended for hyperparameter tuning)
-- **GPU:** Optional (NVIDIA GPU with CUDA support for faster training)
 
-### Option 1: Conda (Recommended)
+### Python Package Versions
+
+The following packages are required (minimum versions specified):
+
+**Core Scientific Computing:**
+- NumPy >= 1.24.0
+- Pandas >= 2.0.0
+- SciPy >= 1.7.0
+
+**Machine Learning:**
+- scikit-learn >= 1.0.0
+
+**Deep Learning:**
+- PyTorch >= 2.0.0
+- torchvision >= 0.15.0
+
+**Hyperparameter Optimization:**
+- Optuna >= 3.0.0
+
+**Data Processing:**
+- pyarrow >= 10.0.0
+- fastparquet >= 2023.0.0
+- joblib >= 1.1.0
+- PyYAML >= 6.0
+
+**Gradient Boosting:**
+- XGBoost >= 1.5.0
+
+**Visualization:**
+- Matplotlib >= 3.5.0
+- Seaborn >= 0.11.0
+
+**Utilities:**
+- tqdm >= 4.60.0
+
+**Optional (Development/Analysis):**
+- Jupyter >= 1.0.0
+- JupyterLab >= 3.0.0
+- ipywidgets >= 7.6.0
+- ipykernel >= 6.0.0
+- black >= 21.5b2
+- flake8 >= 3.9.2
+- pytest >= 6.0.0
+
+### Installing Dependencies
+
+Install all required packages using:
+
+```bash
+pip install -r requirements.txt
+```
+
+For GPU support with CUDA:
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+
+---
+
+## Quick Start: One-Command Replication
+
+To reproduce all results with synthetic data:
+
+```bash
+python replicate_all.py
+```
+
+This command will:
+1. **Generate synthetic data** matching statistical properties of the original dataset
+2. **Train all models** (DDNN-Normal, DDNN-JSU, DDNN-Skewed-t, Linear Quantile Regression, XGBoost)
+3. **Evaluate forecasting performance** and compute metrics for all tables
+4. **Run economic simulation** for profitability analysis
+5. **Generate all figures** from the paper
+6. **Save outputs** to `outputs/` directory
+
+**Expected runtime:** 6-8 hours on standard hardware (4-core CPU, 16GB RAM)
+**GPU acceleration:** 2-4 hours with NVIDIA GPU (8GB+ VRAM)
+
+---
+
+## File-to-Output Mapping
+
+This table maps paper outputs to the scripts that generate them:
+
+| Paper Output | Description | Script | Output File | Runtime |
+|-------------|-------------|---------|-------------|---------|
+| **Table 1** | Descriptive statistics by zone | `src/data/synthetic_data.py` | `outputs/table1_descriptive_stats.csv` | ~1 min |
+| **Table 2** | Aggregate forecasting performance metrics | `scripts/evaluate_models.py` | `outputs/table2_performance.csv` | ~2 hours |
+| **Table 3** | Economic simulation for 50 MW wind producer | `scripts/simulate_bidding.py` | `outputs/table3_economic.csv` | ~30 min |
+| **Figure 1** | Calibration comparison (7 panels: reliability + forecasts) | `scripts/plot_calibration.py` | `outputs/figure1_calibration.pdf` | ~15 min |
+| **Figure 2** | Regional CRPS comparison across NO1-NO5 | `scripts/plot_regional.py` | `outputs/figure2_regional.pdf` | ~15 min |
+
+### Reproducing Individual Outputs
+
+To generate specific outputs independently:
+
+```bash
+# Table 1: Descriptive Statistics
+python src/data/synthetic_data.py --all-zones --start-date 2019-08-25 --end-date 2024-04-25 --save-stats outputs/table1_descriptive_stats.csv
+
+# Table 2: Forecasting Performance (MAE, RMSE, CRPS, Pinball, Winkler)
+python scripts/evaluate_models.py --zones no1 no2 no3 no4 no5 --output outputs/table2_performance.csv
+
+# Table 3: Economic Simulation Results
+python scripts/simulate_bidding.py --zone no2 --output outputs/table3_economic.csv
+
+# Figure 1: Calibration Comparison (7 panels)
+python scripts/plot_calibration.py --zone no2 --output outputs/figure1_calibration.pdf
+
+# Figure 2: Regional CRPS Performance
+python scripts/plot_regional.py --zones no1 no2 no3 no4 no5 --output outputs/figure2_regional.pdf
+```
+
+---
+
+## Synthetic Data Deviations
+
+**Important:** Results obtained using the provided synthetic data will deviate from published values due to data protection requirements.
+
+### Why Synthetic Data?
+
+The original Norwegian electricity market data is proprietary and licensed from Volue AS. It cannot be publicly shared due to:
+- Commercial sensitivity of market data
+- Licensing restrictions prohibiting redistribution
+- Market participant confidentiality
+
+See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md) for details on accessing the original data.
+
+### Limitations of Synthetic Data
+
+The synthetic data generator preserves key statistical properties but cannot replicate:
+
+1. **Simplified correlation structure:** Synthetic generator preserves marginal distributions but simplifies temporal dependencies and cross-zone correlations
+2. **Approximated tail behavior:** Extreme values capped at 99.9th percentile to prevent unrealistic outliers
+3. **Smoothed structural breaks:** The November 2021 single-price transition is smoothed in synthetic data
+4. **Missing market microstructure:** Strategic bidding behavior and market dynamics are approximated
+
+### Expected Deviations
+
+When using synthetic data, expect the following deviations from published results:
+
+| Metric Category | Expected Deviation | Preserved Property |
+|----------------|-------------------|-------------------|
+| Point forecast metrics (MAE, RMSE) | 15-20% deviation | Relative model rankings |
+| Probabilistic metrics (CRPS, Pinball) | 15-25% deviation | Relative model rankings |
+| Economic simulation profits | 20-30% deviation | Sign of profits |
+| Distribution parameters | Moderate differences | Qualitative behavior |
+| Model rankings | Consistent | Best/worst performers preserved |
+| Qualitative findings | Fully reproducible | All insights preserved |
+
+**Key Point:** The synthetic data is designed to enable **methodological replication** while protecting proprietary market data. Quantitative metrics will differ, but qualitative findings and relative model performance remain consistent.
+
+---
+
+## Repository Structure
+
+```
+replication-PFoIP/
+├── README.md                    # This file
+├── REPLICATION.md              # Detailed step-by-step instructions
+├── DATA_AVAILABILITY.md        # Data access and restrictions
+├── LICENSE                     # MIT License
+├── requirements.txt            # Python dependencies (pip)
+├── environment.yml             # Conda environment specification
+├── replicate_all.py           # One-command replication script
+│
+├── config/
+│   └── default_config.yml      # Model and training configuration
+│
+├── data/
+│   └── synthetic/             # Generated synthetic data (created on first run)
+│
+├── src/
+│   ├── data/
+│   │   ├── loader.py          # Data loading and preprocessing
+│   │   └── synthetic_data.py  # Synthetic data generator
+│   ├── models/
+│   │   ├── neural_nets.py     # DDNN implementations
+│   │   ├── distributions.py   # Distribution layers (JSU, Normal, Skewed-t)
+│   │   ├── layers.py          # Custom neural network layers
+│   │   ├── linear_quantile.py # Linear quantile regression
+│   │   └── xgboost_quantile.py # XGBoost quantile regression
+│   ├── training/
+│   │   ├── optuna_tuner.py    # Hyperparameter optimization
+│   │   ├── prediction.py      # Prediction pipeline
+│   │   └── rolling_pred.py    # Rolling-window forecasts
+│   └── evaluation/
+│       ├── metrics.py         # Evaluation metrics (CRPS, Pinball, etc.)
+│       └── visualization.py   # Plotting utilities
+│
+├── scripts/
+│   ├── evaluate_models.py     # Generate Table 2
+│   ├── simulate_bidding.py    # Generate Table 3
+│   ├── plot_calibration.py    # Generate Figure 1
+│   ├── plot_regional.py       # Generate Figure 2
+│   └── verify_installation.py # Installation verification
+│
+├── outputs/                   # Generated results (created by scripts)
+│   ├── table1_descriptive_stats.csv
+│   ├── table2_performance.csv
+│   ├── table3_economic.csv
+│   ├── figure1_calibration.pdf
+│   └── figure2_regional.pdf
+│
+└── results/                   # Model checkpoints and forecasts
+    ├── models/               # Trained models and hyperparameters
+    ├── forecasts/            # Generated probabilistic forecasts
+    └── logs/                 # Training and execution logs
+```
+
+---
+
+## Data Availability
+
+**Important:** The original Norwegian electricity market data is proprietary and cannot be publicly shared.
+
+- **Original data source:** Volue AS (commercial license)
+- **Public alternative:** Synthetic data generator provided
+- **Data access:** See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md) for:
+  - How to request original data from Volue AS
+  - Alternative public data sources
+  - Synthetic data generation instructions
+  - Limitations and expected deviations
+
+---
+
+## Detailed Usage
+
+### Installation
+
+#### Option 1: Conda (Recommended)
 
 Create and activate the conda environment:
 
@@ -68,7 +301,7 @@ conda env create -f environment.yml
 conda activate tio4900-model
 ```
 
-### Option 2: pip
+#### Option 2: pip
 
 Install dependencies using pip:
 
@@ -76,7 +309,7 @@ Install dependencies using pip:
 pip install -r requirements.txt
 ```
 
-### Verify Installation
+#### Verify Installation
 
 Test that the environment is set up correctly:
 
@@ -88,71 +321,9 @@ This script checks that all required packages are installed and imports work cor
 
 ---
 
-## Data Availability
+### Synthetic Data Generation
 
-**Important:** The original Norwegian electricity market data used in this study is confidential and licensed from Volue AS. This data **cannot be publicly shared**.
-
-For testing and demonstration purposes, we provide a synthetic data generator that creates realistic data matching the statistical properties described in the paper. See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md) for:
-
-- Detailed explanation of data restrictions
-- Instructions for accessing original data
-- Synthetic data generation process
-- Limitations of synthetic data
-
-**Note:** Results obtained with synthetic data will differ from those reported in the paper due to the approximations involved.
-
----
-
-## Repository Structure
-
-```
-replication-PFoIP/
-├── config/
-│   └── default_config.yml          # Default hyperparameters and settings
-├── src/
-│   ├── data/
-│   │   ├── loader.py                # Data loading and preprocessing
-│   │   └── synthetic_data.py        # Synthetic data generator
-│   ├── models/
-│   │   ├── neural_nets.py           # DDNN model architectures
-│   │   ├── distributions.py         # Distribution layers (JSU, Normal, Student's t)
-│   │   ├── layers.py                # Custom neural network layers
-│   │   ├── linear_quantile.py       # Linear quantile regression
-│   │   └── xgboost_quantile.py      # XGBoost quantile regression
-│   ├── training/
-│   │   ├── optuna_tuner.py          # Hyperparameter optimization
-│   │   ├── prediction.py            # Daily prediction pipeline
-│   │   ├── rolling_pred.py          # Rolling window predictions
-│   │   ├── linear_quantile_tuner.py # LQR optimization
-│   │   └── xgboost_tuner.py         # XGBoost optimization
-│   └── evaluation/
-│       ├── metrics.py               # Evaluation metrics (CRPS, Pinball, Winkler)
-│       └── visualization.py         # Plotting and visualization
-├── scripts/
-│   └── verify_installation.py       # Installation verification
-├── docs/
-│   └── example_output/              # Example forecasts and outputs
-├── results/
-│   ├── models/                      # Trained model checkpoints and parameters
-│   ├── forecasts/                   # Generated probabilistic forecasts
-│   ├── logs/                        # Training and prediction logs
-│   └── plots/                       # Visualization outputs
-├── run_tuning.py                    # Hyperparameter tuning script
-├── run_pred.py                      # Prediction script
-├── environment.yml                  # Conda environment specification
-├── requirements.txt                 # pip requirements
-├── REPLICATION.md                   # Detailed replication instructions
-├── DATA_AVAILABILITY.md             # Data access information
-├── CITATION.cff                     # Citation metadata
-└── LICENSE                          # MIT License
-
-```
-
----
-
-## Quick Start
-
-### 1. Generate Synthetic Data
+For manual data generation (not needed if using `replicate_all.py`):
 
 ```bash
 # Generate data for all zones (2019-08-25 to 2025-04-25)
@@ -162,7 +333,11 @@ python src/data/synthetic_data.py --all-zones --start-date 2019-08-25 --end-date
 python src/data/synthetic_data.py --zone no1 --start-date 2019-08-25 --end-date 2025-04-25
 ```
 
-### 2. Run Hyperparameter Tuning
+---
+
+### Hyperparameter Tuning
+
+For manual hyperparameter tuning (not needed if using `replicate_all.py`):
 
 ```bash
 # Tune DDNN with JSU distribution for zone NO1
@@ -176,7 +351,9 @@ python run_tuning.py --zone no1 --distribution jsu --run-id test_001 --n-trials 
 - With GPU: ~2-4 hours (128 trials)
 - With CPU: ~8-12 hours (128 trials)
 
-### 3. Generate Predictions
+---
+
+### Generating Predictions
 
 ```bash
 # Generate predictions for a date range

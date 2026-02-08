@@ -2,7 +2,7 @@
 
 This document provides detailed step-by-step instructions for replicating the results from "Probabilistic Forecasting of Imbalance Prices: A Distributional Deep Learning Approach to the Norwegian Balancing Market".
 
-**Journal:** Energy Economics
+**Journal:** Applied Energy
 **Authors:** Knut Skjevrak, Emil Duedahl Holmen, Sjur Westgaard
 **Affiliation:** Norwegian University of Science and Technology (NTNU)
 

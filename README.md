@@ -4,7 +4,7 @@
 
 **Authors:** Knut Skjevrak, Emil Duedahl Holmen, Sjur Westgaard
 **Affiliation:** Norwegian University of Science and Technology (NTNU)
-**Journal:** Submitted to Energy Economics
+**Journal:** Submitted to Applied Energy
 
 This repository contains the complete replication package for reproducing the results presented in the paper.
 
@@ -723,7 +723,7 @@ If you use this code or methodology in your research, please cite:
 @article{skjevrak2025probabilistic,
   title={Probabilistic Forecasting of Imbalance Prices: An Application to the Norwegian Electricity Market},
   author={Skjevrak, Knut and Holmen, Emil Duedahl and Westgaard, Sjur},
-  journal={Manuscript in preparation for International Journal of Forecasting},
+  journal={Manuscript in preparation for Applied Energy},
   year={2025},
   institution={Norwegian University of Science and Technology}
 }

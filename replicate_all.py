@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-replicate_all.py - One-command replication script for Energy Economics submission
+replicate_all.py - One-command replication script for
 
 This script automates the complete replication pipeline:
 1. Generate synthetic data for all zones
@@ -81,7 +81,7 @@ def run_command(cmd, description, logger):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Complete replication pipeline for Energy Economics submission',
+        description='Complete replication pipeline ',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

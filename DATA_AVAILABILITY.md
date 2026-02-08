@@ -20,43 +20,15 @@ The empirical analysis in "Probabilistic Forecasting of Imbalance Prices: An App
   - Hydropower, solar, and wind generation forecasts
   - Cross-border power flows
 
-**Data Provider:** Volue AS (https://www.volue.com/)
-
 ## Data Access Restrictions
 
 **The original data used in this study is confidential and cannot be publicly shared.**
 
-The data is licensed from Volue AS under commercial terms that prohibit redistribution. This restriction applies to:
-
-- Raw market data files
-- Preprocessed datasets
-- Any derivatives that could reconstruct the original time series
-
-### Rationale for Restrictions
-
-1. **Commercial sensitivity:** Market data has commercial value and is sold as a product by Volue AS
-2. **Market participant confidentiality:** Some data elements may reveal strategic bidding information
-3. **Licensing agreements:** Our research license explicitly prohibits public sharing
+The data is licensed under commercial terms that prohibit redistribution.
 
 ## Accessing the Original Data
 
-Researchers wishing to replicate the study using the original data have two options:
-
-### Option 1: Academic Data Request
-
-Contact Volue AS to request academic access to the data:
-
-- **Email:** academic-data@volue.com (or general contact via website)
-- **Website:** https://www.volue.com/
-- **Information to include in your request:**
-  - Research affiliation and purpose
-  - Reference to this paper
-  - Specific data requirements (zones, time period, variables)
-  - Commitment to their data usage terms
-
-Academic licenses may be available at reduced cost or free for non-commercial research purposes.
-
-### Option 2: Alternative Data Sources
+Researchers wishing to replicate the study using the original data can use alternative data sources:
 
 Some components of the dataset are publicly available from alternative sources, though assembly and preprocessing would be required:
 
@@ -67,7 +39,7 @@ Some components of the dataset are publicly available from alternative sources, 
 | Weather forecasts | Norwegian Meteorological Institute | https://www.met.no/ |
 | Consumption data | Statnett | https://www.statnett.no/en/market-and-operations/ |
 
-**Note:** These alternative sources may not provide the exact same coverage, resolution, or time period as the Volue dataset. Results may differ from those reported in the paper.
+**Note:** These alternative sources may not provide the exact same coverage, resolution, or time period as the original dataset. Results may differ from those reported in the paper.
 
 ## Synthetic Data for Reproduction
 
@@ -87,7 +59,7 @@ python src/data/synthetic_data.py --zone no1 --start-date 2019-08-25 --end-date 
 
 The synthetic generator ([src/data/synthetic_data.py](src/data/synthetic_data.py)) creates time series with:
 
-**Statistical Properties (based on Thesis Appendix B, Tables B1-B5):**
+**Statistical Properties:**
 - **mFRR price premium:** Mean ~85-90 EUR/MWh, Std ~90-100 EUR/MWh
 - **Heavy-tailed distribution:** Maximum values >1200 EUR/MWh to simulate price spikes
 - **Skewness:** Right-skewed distributions typical of electricity prices
@@ -167,7 +139,6 @@ The exact preprocessing configuration is documented in [config/default_config.ym
 
 For questions about:
 
-- **Data access:** Contact Volue AS directly (see contact information above)
 - **Data preprocessing and methodology:** Contact the corresponding author:
   - **Name:** Knut Skjevrak
   - **Email:** knut.skjevrak@ntnu.no
@@ -177,7 +148,6 @@ For questions about:
 
 | Aspect | Status | Access Method |
 |--------|--------|---------------|
-| **Original Volue data** | Confidential | Request from Volue AS |
 | **Synthetic data** | Publicly available | Included in repository |
 | **Alternative public data** | Partial coverage | Nord Pool, Statnett, met.no |
 | **Code and methodology** | Fully open | This repository (MIT License) |
@@ -185,6 +155,6 @@ For questions about:
 
 ---
 
-**Last updated:** January 2025
+**Last updated:** January 2026
 
-This data availability statement complies with the International Journal of Forecasting's reproducibility guidelines and the FAIR (Findable, Accessible, Interoperable, Reusable) data principles to the extent possible given commercial data restrictions.
+This data availability statement complies with the FAIR (Findable, Accessible, Interoperable, Reusable) data principles to the extent possible given commercial data restrictions.
